@@ -1,0 +1,64 @@
+{
+  "name": "Deny-AI-Services-CMK-ManagedHSM",
+  "properties": {
+    "description": "Azure AI services must use a customer-managed key from Managed HSM for encryption.",
+    "displayName": "Azure AI services must use a customer-managed key from Managed HSM for encryption",
+    "metadata": {
+      "alzCloudEnvironments": [
+        "AzureCloud",
+        "AzureChinaCloud",
+        "AzureUSGovernment"
+      ],
+      "category": "Azure AI Services",
+      "source": "https://github.com/Azure/Enterprise-Scale/",
+      "version": "1.0.0"
+    },
+    "mode": "All",
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Deny"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "anyOf": [
+          {
+            "allOf": [
+              {
+                "field": "type",
+                "equals": "Microsoft.CognitiveServices/accounts"
+              },
+              {
+                "not": {
+                  "field": "Microsoft.CognitiveServices/accounts/encryption.keySource",
+                  "equals": "Microsoft.Keyvault"
+                }
+              },
+              {
+                "not": {
+                  "field": "Microsoft.CognitiveServices/accounts/encryption.keyVaultProperties.keyVaultUri",
+                  "like": "https://*.managedhsm.azure.net"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    },
+    "policyType": "Custom"
+  },
+  "type": "Microsoft.Authorization/policyDefinitions"
+}

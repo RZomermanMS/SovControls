@@ -1,0 +1,62 @@
+{
+  "name": "Require-RedisCache-CMK-ManagedHSM",
+  "properties": {
+    "description": "Azure Managed Redis must use a customer-managed key from Managed HSM for encryption.",
+    "displayName": "Azure Managed Redis must use a customer-managed key from Managed HSM",
+    "metadata": {
+      "alzCloudEnvironments": [
+        "AzureCloud",
+        "AzureChinaCloud",
+        "AzureUSGovernment"
+      ],
+      "category": "Azure Redis",
+      "source": "https://github.com/Azure/Enterprise-Scale/",
+      "version": "1.0.0"
+    },
+    "mode": "All",
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Cache/redisEnterprise"
+          },
+          {
+            "anyOf": [
+              {
+                "field": "Microsoft.Cache/redisEnterprise/encryption.customerManagedKeyEncryption.keyEncryptionKeyUrl",
+                "exists": false
+              },
+              {
+                "field": "Microsoft.Cache/redisEnterprise/encryption.customerManagedKeyEncryption.keyEncryptionKeyUrl",
+                "equals": ""
+              },
+              {
+                "field": "Microsoft.Cache/redisEnterprise/encryption.customerManagedKeyEncryption.keyEncryptionKeyUrl",
+                "notContains": ".managedhsm.azure.net"
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

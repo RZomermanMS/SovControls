@@ -1,0 +1,50 @@
+{
+  "name": "Deny-AzureRecoveryVaults-CMK-ManagedHSM",
+  "properties": {
+    "description": "Azure Recovery Vaults must use a customer-managed key from Managed HSM for encryption.",
+    "displayName": "Azure Recovery Vaults must use a customer-managed key from Managed HSM",
+    "metadata": {
+      "alzCloudEnvironments": [
+        "AzureCloud",
+        "AzureChinaCloud",
+        "AzureUSGovernment"
+      ],
+      "category": "Azure Backup",
+      "source": "https://github.com/Azure/Enterprise-Scale/",
+      "version": "1.0.0"
+    },
+    "mode": "All",
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Deny"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.RecoveryServices/vaults"
+          },
+          {
+            "field": "Microsoft.RecoveryServices/vaults/encryption.keyVaultProperties.keyUri",
+            "notContains": ".managedhsm.azure.net"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

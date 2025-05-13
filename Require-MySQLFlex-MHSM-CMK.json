@@ -1,0 +1,64 @@
+{
+  "name": "Require-MySQLFlex-CMK-ManagedHSM",
+  "properties": {
+    "description": "Azure MySQL Flexible Server must use a customer-managed key from Managed HSM for encryption.",
+    "displayName": "Azure MySQL Flexible Server must use a customer-managed key from Managed HSM",
+    "metadata": {
+      "alzCloudEnvironments": [
+        "AzureCloud",
+        "AzureChinaCloud",
+        "AzureUSGovernment"
+      ],
+      "category": "Databases",
+      "source": "https://github.com/Azure/Enterprise-Scale/",
+      "version": "1.0.0"
+    },
+    "mode": "All",
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.DBforMySQL/flexibleServers"
+          },
+          {
+            "anyOf": [
+              {
+                "field": "Microsoft.DBForMySql/flexibleServers/dataEncryption.primaryKeyUri",
+                "exists": false
+              },
+              {
+                "field": "Microsoft.DBForMySql/flexibleServers/dataEncryption.primaryKeyUri",
+                "equals": ""
+              },
+              {
+                "field": "Microsoft.DBForMySql/flexibleServers/dataEncryption.primaryKeyUri",
+                "notContains": ".managedhsm.azure.net"
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    },
+    "policyType": "Custom"
+  },
+  "type": "Microsoft.Authorization/policyDefinitions"
+}

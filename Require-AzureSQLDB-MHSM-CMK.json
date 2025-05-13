@@ -1,0 +1,113 @@
+{
+  "properties": {
+    "displayName": "SQL servers should use Managed HSM customer-managed keys to encrypt data at rest",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "Ensure SQL servers use Transparent Data Encryption (TDE) with customer-managed keys stored in an Azure Managed HSM for enhanced security and compliance. This recommendation applies to organizations with a related compliance requirement.",
+    "metadata": {
+      "version": "2.0.2",
+      "category": "Databases"
+    },
+    "version": "2.0.2",
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "anyOf": [
+          {
+            "allOf": [
+              {
+                "field": "type",
+                "equals": "Microsoft.Sql/servers"
+              },
+              {
+                "value": "[resourcegroup().managedBy]",
+                "notContains": "/providers/Microsoft.Synapse/"
+              },
+              {
+                "anyOf": [
+                  {
+                    "field": "Microsoft.Sql/servers/keyId",
+                    "exists": false
+                  },
+                  {
+                    "field": "Microsoft.Sql/servers/keyId",
+                    "equals": ""
+                  },
+                  {
+                    "field": "Microsoft.Sql/servers/keyId",
+                    "notContains": "managedhsm.azure.net"
+                  },
+                  {
+                    "field": "Microsoft.Sql/servers/databases/encryptionProtector",
+                    "notContains": "managedhsm.azure.net"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "allOf": [
+              {
+                "field": "type",
+                "equals": "Microsoft.Sql/servers/databases"
+              },
+              {
+                "value": "[resourcegroup().managedBy]",
+                "notContains": "/providers/Microsoft.Synapse/"
+              },
+              {
+                "anyOf": [
+                  {
+                    "field": "Microsoft.Sql/servers/databases/encryptionProtector",
+                    "exists": false
+                  },
+                  {
+                    "field": "Microsoft.Sql/servers/databases/encryptionProtector",
+                    "equals": ""
+                  },
+                  {
+                    "field": "Microsoft.Sql/servers/databases/encryptionProtector",
+                    "notContains": "managedhsm.azure.net"
+                  }
+                ]
+              },
+              {
+                "anyOf": [
+                  {
+                    "field": "Microsoft.Sql/servers/keyId",
+                    "exists": false
+                  },
+                  {
+                    "field": "Microsoft.Sql/servers/keyId",
+                    "equals": ""
+                  },
+                  {
+                    "field": "Microsoft.Sql/servers/keyId",
+                    "notContains": "managedhsm.azure.net"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

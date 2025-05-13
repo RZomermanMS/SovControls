@@ -1,0 +1,63 @@
+{
+  "properties": {
+    "displayName": "Require-AzureStorage-MHSM-CMK",
+    "policyType": "Custom",
+    "mode": "All",
+    "metadata": {
+      "alzCloudEnvironments": [
+        "AzureCloud",
+        "AzureChinaCloud",
+        "AzureUSGovernment"
+      ],
+      "category": "Azure Storage",
+      "source": "https://github.com/Azure/Enterprise-Scale/",
+      "version": "1.0.0"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Storage/storageAccounts"
+          },
+          {
+            "anyOf": [
+              {
+                "not": {
+                  "field": "Microsoft.Storage/storageAccounts/encryption.keySource",
+                  "equals": "Microsoft.Keyvault"
+                }
+              },
+              {
+                "field": "Microsoft.Storage/storageAccounts/encryption.keyVaultProperties.keyVaultUri",
+                "notLike": "https://*.managedhsm.azure.net"
+              },
+              {
+                "field": "Microsoft.Storage/storageAccounts/encryption.keyVaultProperties.keyVaultUri",
+                "equals": ""
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

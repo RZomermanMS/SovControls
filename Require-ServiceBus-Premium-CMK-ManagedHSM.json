@@ -1,0 +1,60 @@
+{
+  "name": "Require-ServiceBus-Premium-CMK-ManagedHSM",
+  "properties": {
+    "description": "ServiceBus namespaces (Premium) should use a Managed HSM based customer-managed key for encryption.",
+    "displayName": "ServiceBus namespaces (Premium) should use a Managed HSM based customer-managed key for encryption",
+    "metadata": {
+      "alzCloudEnvironments": [
+        "AzureCloud",
+        "AzureChinaCloud",
+        "AzureUSGovernment"
+      ],
+      "category": "ServiceBus",
+      "source": "https://github.com/Azure/Enterprise-Scale/",
+      "version": "1.0.0"
+    },
+    "mode": "All",
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "equals": "Microsoft.ServiceBus/namespaces",
+            "field": "type"
+          },
+          {
+            "equals": "Premium",
+            "field": "Microsoft.ServiceBus/namespaces/sku.name"
+          },
+          {
+            "equals": "Microsoft.Keyvault",
+            "field": "Microsoft.ServiceBus/namespaces/encryption.keySource"
+          },
+          {
+            "not": {
+              "field": "Microsoft.ServiceBus/namespaces/encryption.keyVaultProperties.keyVaultUri",
+              "like": "https://*.managedhsm.azure.net"
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "name": "Deny-DES-Without-ManagedHSM",
+  "properties": {
+    "displayName": "Disk Encryption Sets must use customer-managed keys sourced from Managed HSM",
+    "description": "Ensures that all Disk Encryption Sets (DES) in Azure use customer-managed keys (CMK) sourced from Managed HSM.",
+    "policyType": "Custom",
+    "mode": "All",
+    "metadata": {
+      "category": "Storage",
+      "version": "1.0.0"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "'Audit' allows a non-compliant resource to be created or updated, but flags it as non-compliant. 'Deny' blocks the non-compliant resource creation or update. 'Disabled' turns off the policy."
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/diskEncryptionSets"
+          },
+          {
+            "field": "Microsoft.Compute/diskEncryptionSets/activeKey.keyUrl",
+            "notContains": "managedhsm.azure.net"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  },
+  "type": "Microsoft.Authorization/policyDefinitions"
+}
