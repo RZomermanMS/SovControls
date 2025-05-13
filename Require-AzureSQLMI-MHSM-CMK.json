@@ -45,7 +45,7 @@
                   },
                   {
                     "field": "Microsoft.Sql/managedInstances/keyid",
-                    "notLike": "https://*.managedhsm.azure.net"
+                    "notContains": ".managedhsm.azure.net"
                   }
                 ]
               }
