@@ -1,0 +1,40 @@
+{
+  "properties": {
+    "displayName": "ACC Controlled Postgresql",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "This policy only allows the deployment of ACC enabled postgresql servers using AMD EC and DC based VM's",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "PostgreSQL"
+    },
+    "parameters": {},
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.DBforPostgreSQL/flexibleServers"
+          },
+          {
+            "not": {
+              "anyOf": [
+                {
+                  "field": "Microsoft.DBforPostgreSQL/flexibleServers/sku.name",
+                  "like": "Standard_EC*ads_v5"
+                },
+                {
+                  "field": "Microsoft.DBforPostgreSQL/flexibleServers/sku.name",
+                  "like": "Standard_DC*ads_v5"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "deny"
+      }
+    }
+  }
+}
